@@ -1,114 +1,125 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { 
   makeStyles, 
   shorthands, 
   Title2, 
-  tokens,
-  Card,
-  CardHeader,
-  Body1,
-  Subtitle1,
-  Button,
-  Caption1,
-  Text
+  Caption1
 } from '@fluentui/react-components'
-import { 
-  SparkleRegular, 
-} from '@fluentui/react-icons'
+import { ChatBubble } from '../components/Chat/ChatBubble'
+import { ChatInput } from '../components/Chat/ChatInput'
+import { MessageList } from '../components/Chat/MessageList'
 
 const useStyles = makeStyles({
-  container: {
+  pageContainer: {
     display: 'flex',
     flexDirection: 'column',
-    ...shorthands.gap('20px'),
+    height: 'calc(100vh - 100px)', /* Adjust based on navbar height */
+    backgroundColor: 'var(--color-bg-chat)',
+    ...shorthands.borderRadius('var(--radius-lg)'),
+    ...shorthands.border('1px', 'solid', 'var(--color-border)'),
+    overflow: 'hidden',
+    boxShadow: 'var(--shadow-md)',
   },
-  section: {
+  header: {
+    ...shorthands.padding('16px', '20px'),
+    borderBottom: '1px solid var(--color-border)',
     display: 'flex',
-    flexDirection: 'column',
-    ...shorthands.gap('15px'),
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: 'var(--color-bg-base)',
   },
-  insightCard: {
-    ...shorthands.borderLeft('4px', 'solid', tokens.colorBrandStroke1),
-  },
-  alertCard: {
-    ...shorthands.borderLeft('4px', 'solid', tokens.colorPaletteRedBorderActive),
-  },
-  suggestionCard: {
-    ...shorthands.borderLeft('4px', 'solid', tokens.colorPaletteYellowBorderActive),
+  title: {
+    margin: 0,
+    fontSize: '18px',
   }
 })
 
+interface Message {
+  id: string
+  text: string
+  isAI: boolean
+  timestamp: string
+  senderName: string
+  avatarUrl?: string
+}
+
 export const AIInsights: React.FC = () => {
   const styles = useStyles()
+  const [messages, setMessages] = useState<Message[]>([
+    {
+      id: '1',
+      text: "Hello! I've analyzed your business data for the past week. You had a strong performance with a 15% increase in revenue! Coffee Beans and Milk were your top sellers.",
+      isAI: true,
+      timestamp: "10:00 AM",
+      senderName: "Aurora AI",
+    },
+    {
+      id: '2',
+      text: "That's great! Any specific trends I should know about for next week?",
+      isAI: false,
+      timestamp: "10:01 AM",
+      senderName: "Business Owner",
+    },
+    {
+      id: '3',
+      text: "Yes, we've identified a consistent 40% spike in sales every Tuesday. This correlates with your 'Morning Brew' discounts. I recommend extending this to Wednesdays to capitalize on the momentum.",
+      isAI: true,
+      timestamp: "10:01 AM",
+      senderName: "Aurora AI",
+    },
+    {
+      id: '4',
+      text: "Also, a heads-up on inventory: Paper Cups are overstocked, but Milk is running low. I suggest reducing your next cup order and increasing milk stock by 20%.",
+      isAI: true,
+      timestamp: "10:02 AM",
+      senderName: "Aurora AI",
+    }
+  ])
+
+  const handleSend = (text: string) => {
+    const newMessage: Message = {
+      id: Date.now().toString(),
+      text,
+      isAI: false,
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      senderName: "Business Owner",
+    }
+    setMessages([...messages, newMessage])
+
+    // Simulate AI response
+    setTimeout(() => {
+      const aiResponse: Message = {
+        id: (Date.now() + 1).toString(),
+        text: "I'm processing that request. I'll get back to you with a detailed analysis shortly!",
+        isAI: true,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        senderName: "Aurora AI",
+      }
+      setMessages(prev => [...prev, aiResponse])
+    }, 1000)
+  }
 
   return (
-    <div className={styles.container}>
-      <Title2>AI Business Advisor</Title2>
+    <div className={styles.pageContainer}>
+      <div className={styles.header}>
+        <Title2 className={styles.title}>Aurora AI Business Advisor</Title2>
+        <Caption1 style={{ color: 'var(--color-text-muted)' }}>Online</Caption1>
+      </div>
       
-      <div className={styles.section}>
-        <Subtitle1>Weekly Business Summary</Subtitle1>
-        <Card className={styles.insightCard}>
-          <CardHeader 
-            header={<Text weight="semibold">Performance Analysis</Text>}
+      <MessageList>
+        {messages.map((msg) => (
+          <ChatBubble
+            key={msg.id}
+            message={msg.text}
+            isAI={msg.isAI}
+            timestamp={msg.timestamp}
+            senderName={msg.senderName}
+            avatarUrl={msg.avatarUrl}
           />
-          <Body1>
-            Your business had a strong week with a 15% increase in revenue compared to last week. 
-            The peak performers were <strong>Coffee Beans</strong> and <strong>Milk</strong>. 
-            Customer footfall was highest on Saturday afternoon.
-          </Body1>
-        </Card>
-      </div>
+        ))}
+      </MessageList>
 
-      <div className={styles.section}>
-        <Subtitle1>Sales Trend Analysis</Subtitle1>
-        <Card className={styles.insightCard}>
-          <CardHeader 
-            header={<Text weight="semibold">Tuesday Sales Growth</Text>}
-          />
-          <Body1>
-            We've identified a consistent 40% spike in sales every Tuesday. 
-            This seems to correlate with your "Morning Brew" discounts. 
-            <strong>Action:</strong> Consider extending this promotion to Wednesday mornings to see if it captures a similar trend.
-          </Body1>
-        </Card>
-      </div>
-
-      <div className={styles.section}>
-        <Subtitle1>Customer Retention Alerts</Subtitle1>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-          <Card className={styles.alertCard}>
-            <CardHeader 
-              header={<Text weight="semibold">At-Risk Customers</Text>}
-            />
-            <Body1>
-              5 high-value customers haven't visited in over 30 days. 
-              <strong>Alice Smith</strong> (Last spend $890) is among them.
-            </Body1>
-            <Button appearance="subtle">Sent "We Miss You" Discount</Button>
-          </Card>
-        </div>
-      </div>
-
-      <div className={styles.section}>
-        <Subtitle1>Product Recommendations</Subtitle1>
-        <Card className={styles.suggestionCard}>
-          <CardHeader 
-            header={<Text weight="semibold">Inventory Optimization</Text>}
-          />
-          <Body1>
-            <strong>Paper Cups</strong> are overstocked (500+ units), while <strong>Milk</strong> is frequently running low. 
-            Consider reducing your next Paper Cup order and increasing Milk stock by 20% to avoid stockouts.
-          </Body1>
-        </Card>
-      </div>
-
-      <div style={{ textAlign: 'center', marginTop: '20px' }}>
-        <Caption1>These insights are generated periodically using your business data and Azure OpenAI.</Caption1>
-        <br />
-        <Button appearance="outline" icon={<SparkleRegular />} style={{ marginTop: '10px' }}>
-          Regenerate Full Report
-        </Button>
-      </div>
+      <ChatInput onSend={handleSend} />
     </div>
   )
 }

@@ -2,7 +2,6 @@ import React, { useState } from 'react'
 import { 
   makeStyles, 
   shorthands, 
-  Title2, 
   Button, 
   Input,
   DataGrid,
@@ -17,35 +16,96 @@ import {
   DrawerHeader,
   DrawerHeaderTitle,
   DrawerBody,
-  Field
+  Field,
+  mergeClasses,
+  Text
 } from '@fluentui/react-components'
-import { AddRegular, SearchRegular, DismissRegular } from '@fluentui/react-icons'
+import { AddRegular, SearchRegular, DismissRegular, PeopleRegular } from '@fluentui/react-icons'
 
 const useStyles = makeStyles({
   container: {
     display: 'flex',
     flexDirection: 'column',
-    ...shorthands.gap('20px'),
+    ...shorthands.gap('32px'),
   },
   header: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
     flexWrap: 'wrap',
-    ...shorthands.gap('10px'),
+    ...shorthands.gap('20px'),
+  },
+  title: {
+    fontSize: '32px',
+    fontWeight: '900',
+    letterSpacing: '-1px',
+    color: 'var(--color-text-base)',
+    display: 'flex',
+    alignItems: 'center',
+    ...shorthands.gap('12px'),
+  },
+  searchAndAction: {
+    display: 'flex',
+    alignItems: 'center',
+    ...shorthands.gap('16px'),
+    flexWrap: 'wrap',
   },
   searchBar: {
-    width: '100%',
-    maxWidth: '300px',
+    width: '300px',
+    backgroundColor: 'var(--glass-bg)',
+    ...shorthands.borderRadius('12px'),
+  },
+  addButton: {
+    height: '42px',
+    ...shorthands.borderRadius('12px'),
+    fontWeight: '700',
+    padding: '0 20px',
+  },
+  tableContainer: {
+    backgroundColor: 'var(--glass-bg)',
+    backdropFilter: 'var(--glass-blur)',
+    ...shorthands.border('1px', 'solid', 'var(--glass-border)'),
+    ...shorthands.borderRadius('var(--radius-lg)'),
+    boxShadow: 'var(--shadow-md)',
+    overflow: 'hidden',
+    padding: '8px',
+  },
+  grid: {
+    '--fui-DataGrid-row-background': 'transparent',
+    '--fui-DataGrid-header-background': 'transparent',
+  },
+  row: {
+    transition: 'all 0.2s ease',
+    ':hover': {
+      backgroundColor: 'var(--color-primary-soft)',
+    }
+  },
+  headerCell: {
+    fontWeight: '700',
+    color: 'var(--color-text-base)',
+    fontSize: '14px',
+    textTransform: 'uppercase',
+    letterSpacing: '0.05em',
+  },
+  cell: {
+    fontSize: '15px',
+    color: 'var(--color-text-base)',
   },
   drawer: {
     width: '100%',
-    maxWidth: '400px',
+    maxWidth: '440px',
+    backgroundColor: 'var(--color-bg-base)',
+    backgroundImage: 'radial-gradient(circle at 0% 0%, var(--color-primary-soft) 0%, transparent 50%)',
   },
   form: {
     display: 'flex',
     flexDirection: 'column',
-    ...shorthands.gap('15px'),
+    ...shorthands.gap('24px'),
+    ...shorthands.padding('20px', '0'),
+  },
+  input: {
+    height: '44px',
+    ...shorthands.borderRadius('12px'),
   }
 })
 
@@ -61,18 +121,27 @@ interface Customer {
 const columns = [
   createTableColumn<Customer>({
     columnId: 'name',
-    renderHeaderCell: () => 'Name',
-    renderCell: (item) => <TableCellLayout>{item.name}</TableCellLayout>
+    renderHeaderCell: () => 'Customer Name',
+    renderCell: (item) => (
+      <TableCellLayout media={<div style={{ width: 32, height: 32, borderRadius: '50%', background: 'var(--color-primary-soft)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-primary)', fontWeight: 'bold' }}>{item.name[0]}</div>}>
+        <Text weight="semibold">{item.name}</Text>
+      </TableCellLayout>
+    )
   }),
   createTableColumn<Customer>({
     columnId: 'phone',
     renderHeaderCell: () => 'Phone',
-    renderCell: (item) => item.phone
+    renderCell: (item) => <Text font="monospace">{item.phone}</Text>
   }),
   createTableColumn<Customer>({
     columnId: 'totalPurchases',
-    renderHeaderCell: () => 'Spend',
-    renderCell: (item) => `$${item.totalPurchases}`
+    renderHeaderCell: () => 'Total Spend',
+    renderCell: (item) => <Text weight="bold" color="var(--color-primary)">${item.totalPurchases}</Text>
+  }),
+  createTableColumn<Customer>({
+    columnId: 'lastVisit',
+    renderHeaderCell: () => 'Last Activity',
+    renderCell: (item) => <Text size={200} color="var(--color-text-muted)">{item.lastVisit}</Text>
   })
 ]
 
@@ -93,40 +162,51 @@ export const Customers: React.FC = () => {
   )
 
   return (
-    <div className={styles.container}>
+    <div className={mergeClasses(styles.container, 'animate-fade-in')}>
       <div className={styles.header}>
-        <Title2>Customers</Title2>
-        <Button icon={<AddRegular />} appearance="primary" onClick={() => setIsDrawerOpen(true)}>Add Customer</Button>
+        <div className={styles.title}>
+          <PeopleRegular fontSize={32} color="var(--color-primary)" />
+          Customers
+        </div>
+        <div className={styles.searchAndAction}>
+          <Input 
+            className={styles.searchBar}
+            contentBefore={<SearchRegular />} 
+            placeholder="Search by name or phone..." 
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+          <Button 
+            className={styles.addButton}
+            icon={<AddRegular />} 
+            appearance="primary" 
+            onClick={() => setIsDrawerOpen(true)}
+          >
+            New Customer
+          </Button>
+        </div>
       </div>
 
-      <div className={styles.searchBar}>
-        <Input 
-          contentBefore={<SearchRegular />} 
-          placeholder="Search customers..." 
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          style={{ width: '100%' }}
-        />
-      </div>
-
-      <DataGrid items={filteredCustomers} columns={columns} selectionMode="single">
-        <DataGridHeader>
-          <DataGridRow>
-            {({ renderHeaderCell }) => (
-              <DataGridHeaderCell>{renderHeaderCell()}</DataGridHeaderCell>
-            )}
-          </DataGridRow>
-        </DataGridHeader>
-        <DataGridBody<Customer>>
-          {({ item, rowId }) => (
-            <DataGridRow key={rowId}>
-              {({ renderCell }) => (
-                <DataGridCell>{renderCell(item)}</DataGridCell>
+      <div className={styles.tableContainer}>
+        <DataGrid items={filteredCustomers} columns={columns} selectionMode="single" className={styles.grid}>
+          <DataGridHeader>
+            <DataGridRow>
+              {({ renderHeaderCell }) => (
+                <DataGridHeaderCell className={styles.headerCell}>{renderHeaderCell()}</DataGridHeaderCell>
               )}
             </DataGridRow>
-          )}
-        </DataGridBody>
-      </DataGrid>
+          </DataGridHeader>
+          <DataGridBody<Customer>>
+            {({ item, rowId }) => (
+              <DataGridRow key={rowId} className={styles.row}>
+                {({ renderCell }) => (
+                  <DataGridCell className={styles.cell}>{renderCell(item)}</DataGridCell>
+                )}
+              </DataGridRow>
+            )}
+          </DataGridBody>
+        </DataGrid>
+      </div>
 
       <Drawer
         className={styles.drawer}
@@ -151,15 +231,22 @@ export const Customers: React.FC = () => {
         <DrawerBody>
           <form className={styles.form}>
             <Field label="Full Name" required>
-              <Input required />
+              <Input className={styles.input} required placeholder="e.g. Jane Foster" />
             </Field>
             <Field label="Phone Number" required>
-              <Input type="tel" required />
+              <Input className={styles.input} type="tel" required placeholder="07XX XXX XXX" />
             </Field>
             <Field label="Email Address">
-              <Input type="email" />
+              <Input className={styles.input} type="email" placeholder="jane@example.com" />
             </Field>
-            <Button appearance="primary" style={{ marginTop: '20px' }} onClick={() => setIsDrawerOpen(false)}>Save Customer</Button>
+            <Button 
+              appearance="primary" 
+              className={styles.addButton}
+              style={{ marginTop: '12px', height: '48px' }} 
+              onClick={() => setIsDrawerOpen(false)}
+            >
+              Save Customer
+            </Button>
           </form>
         </DrawerBody>
       </Drawer>

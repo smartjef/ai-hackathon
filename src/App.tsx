@@ -10,6 +10,8 @@ import { Products } from './pages/Products'
 import { Sales } from './pages/Sales'
 import { Analytics } from './pages/Analytics'
 import { AIInsights } from './pages/AIInsights'
+import { ThemeProvider, useTheme } from './context/ThemeContext'
+import { FluentProvider, webLightTheme, webDarkTheme } from '@fluentui/react-components'
 
 const useStyles = makeStyles({
   container: {
@@ -17,24 +19,35 @@ const useStyles = makeStyles({
   },
 })
 
-function App() {
+const AppContent: React.FC = () => {
   const styles = useStyles()
+  const { theme } = useTheme()
 
   return (
-    <div className={styles.container}>
-      <Layout>
-        <Routes>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/customers" element={<Customers />} />
-          <Route path="/products" element={<Products />} />
-          <Route path="/sales" element={<Sales />} />
-          <Route path="/analytics" element={<Analytics />} />
-          <Route path="/ai-insights" element={<AIInsights />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-        </Routes>
-      </Layout>
-    </div>
+    <FluentProvider theme={theme === 'dark' ? webDarkTheme : webLightTheme}>
+      <div className={styles.container}>
+        <Layout>
+          <Routes>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/customers" element={<Customers />} />
+            <Route path="/products" element={<Products />} />
+            <Route path="/sales" element={<Sales />} />
+            <Route path="/analytics" element={<Analytics />} />
+            <Route path="/ai-insights" element={<AIInsights />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+          </Routes>
+        </Layout>
+      </div>
+    </FluentProvider>
+  )
+}
+
+function App() {
+  return (
+    <ThemeProvider>
+      <AppContent />
+    </ThemeProvider>
   )
 }
 

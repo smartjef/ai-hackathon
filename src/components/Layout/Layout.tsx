@@ -1,5 +1,5 @@
-import React, { ReactNode } from 'react'
-import { makeStyles, tokens } from '@fluentui/react-components'
+import React from 'react'
+import { makeStyles } from '@fluentui/react-components'
 import { Sidebar } from './Sidebar'
 import { BottomNav } from './BottomNav'
 import { useAuth } from '../../context/AuthContext'
@@ -9,15 +9,18 @@ const useStyles = makeStyles({
   root: {
     display: 'flex',
     minHeight: '100vh',
+    backgroundColor: 'transparent',
   },
   main: {
     flexGrow: 1,
-    padding: '20px',
-    backgroundColor: tokens.colorNeutralBackground2,
+    padding: '24px',
+    backgroundColor: 'transparent',
     paddingBottom: '80px', // For mobile bottom nav
+    transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
     '@media (min-width: 768px)': {
-      marginLeft: '240px',
-      paddingBottom: '20px',
+      marginLeft: '280px', // Adjusted for wider floating sidebar
+      padding: '32px 40px',
+      paddingBottom: '40px',
     },
   },
   navWrapper: {
@@ -35,7 +38,7 @@ const useStyles = makeStyles({
 })
 
 interface LayoutProps {
-  children: ReactNode
+  children: React.ReactNode
 }
 
 export const Layout: React.FC<LayoutProps> = ({ children }) => {
@@ -52,7 +55,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   }
 
   if (isPublicPath) {
-    return <>{children}</>
+    return <div className="animate-fade-in">{children}</div>
   }
 
   return (
@@ -60,7 +63,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
       <div className={styles.sidebarWrapper}>
         <Sidebar />
       </div>
-      <main className={styles.main}>
+      <main className={mergeClasses(styles.main, 'animate-fade-in')}>
         {children}
       </main>
       <div className={styles.navWrapper}>
@@ -69,3 +72,6 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     </div>
   )
 }
+
+// Helper to use mergeClasses which wasn't imported
+import { mergeClasses } from '@fluentui/react-components'

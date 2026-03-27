@@ -3,10 +3,10 @@ import {
   makeStyles, 
   shorthands, 
   Title2, 
-  Body1, 
   Button, 
   Subtitle1,
-  Card
+  mergeClasses,
+  Text
 } from '@fluentui/react-components'
 import { 
   AddRegular, 
@@ -15,7 +15,8 @@ import {
   MoneyRegular,
   PeopleRegular,
   BoxRegular,
-  TagRegular
+  TagRegular,
+  SparkleRegular
 } from '@fluentui/react-icons'
 import { useAuth } from '../context/AuthContext'
 import { KPICard } from '../components/KPICard'
@@ -25,23 +26,86 @@ const useStyles = makeStyles({
   container: {
     display: 'flex',
     flexDirection: 'column',
-    ...shorthands.gap('20px'),
+    ...shorthands.gap('40px'),
+  },
+  header: {
+    display: 'flex',
+    flexDirection: 'column',
+    ...shorthands.gap('8px'),
+    animation: 'fadeIn 0.8s ease-out',
+  },
+  greeting: {
+    fontSize: '40px',
+    fontWeight: '900',
+    color: 'var(--color-text-base)',
+    background: 'linear-gradient(135deg, var(--color-primary) 0%, #818cf8 50%, #c084fc 100%)',
+    '-webkit-background-clip': 'text',
+    '-webkit-text-fill-color': 'transparent',
+    letterSpacing: '-1.5px',
+    ...shorthands.margin(0),
+  },
+  subGreeting: {
+    color: 'var(--color-text-muted)',
+    fontSize: '18px',
+    fontWeight: '500',
+    letterSpacing: '-0.2px',
   },
   kpiRow: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
-    ...shorthands.gap('15px'),
+    gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+    ...shorthands.gap('24px'),
   },
   quickActions: {
     display: 'flex',
     flexWrap: 'wrap',
-    ...shorthands.gap('10px'),
-    ...shorthands.margin('10px', '0'),
+    ...shorthands.gap('16px'),
+    padding: '8px 0',
+  },
+  actionButton: {
+    height: '48px',
+    ...shorthands.borderRadius('16px'),
+    ...shorthands.padding('0', '28px'),
+    fontWeight: '700',
+    fontSize: '14px',
+    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+    ':hover': {
+      transform: 'translateY(-2px)',
+      boxShadow: '0 8px 15px -3px var(--color-primary-glow)',
+    }
+  },
+  secondaryButton: {
+    backgroundColor: 'var(--glass-bg)',
+    backdropFilter: 'var(--glass-blur)',
+    border: '1px solid var(--glass-border)',
+    ':hover': {
+      backgroundColor: 'var(--color-primary-soft)',
+    }
   },
   section: {
     display: 'flex',
     flexDirection: 'column',
+    ...shorthands.gap('20px'),
+  },
+  sectionTitle: {
+    fontSize: '20px',
+    fontWeight: '800',
+    color: 'var(--color-text-base)',
+    display: 'flex',
+    alignItems: 'center',
     ...shorthands.gap('10px'),
+  },
+  emptyCard: {
+    padding: '60px',
+    textAlign: 'center',
+    color: 'var(--color-text-muted)',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    ...shorthands.gap('12px'),
+    background: 'var(--glass-bg)',
+    backdropFilter: 'var(--glass-blur)',
+    ...shorthands.border('1px', 'solid', 'var(--glass-border)'),
+    ...shorthands.borderRadius('var(--radius-lg)'),
   }
 })
 
@@ -50,58 +114,64 @@ export const Dashboard: React.FC = () => {
   const { user } = useAuth()
 
   return (
-    <div className={styles.container}>
-      <div>
-        <Title2>Good morning, {user?.businessName || 'Business Owner'} 👋</Title2>
-        <Body1>Here's what's happening with your business today.</Body1>
+    <div className={mergeClasses(styles.container, 'animate-fade-in')}>
+      <div className={styles.header}>
+        <Title2 className={styles.greeting}>Welcome back, {user?.businessName || 'Business Owner'} 👋</Title2>
+        <Text className={styles.subGreeting}>Here's what's happening with your business today.</Text>
       </div>
 
       <div className={styles.quickActions}>
-        <Button icon={<AddRegular />} appearance="primary">Add Sale</Button>
-        <Button icon={<PersonAddRegular />}>Add Customer</Button>
-        <Button icon={<StorageRegular />}>Add Product</Button>
+        <Button icon={<AddRegular />} appearance="primary" className={styles.actionButton}>Create Sale</Button>
+        <Button icon={<PersonAddRegular />} className={mergeClasses(styles.actionButton, styles.secondaryButton)}>New Customer</Button>
+        <Button icon={<StorageRegular />} className={mergeClasses(styles.actionButton, styles.secondaryButton)}>New Product</Button>
       </div>
 
       <div className={styles.kpiRow}>
         <KPICard 
-          title="Total Revenue" 
+          title="Revenue" 
           value="$12,450" 
           icon={<MoneyRegular />} 
-          trend="12% from last month" 
+          trend="12.5% increase" 
           trendDirection="up" 
         />
         <KPICard 
-          title="Total Customers" 
+          title="Customers" 
           value="156" 
           icon={<PeopleRegular />} 
-          trend="5 new this week" 
+          trend="8.2% growth" 
           trendDirection="up" 
         />
         <KPICard 
-          title="Products in Stock" 
+          title="Inventory" 
           value="42" 
           icon={<BoxRegular />} 
+          trend="4 items low" 
+          trendDirection="down" 
         />
         <KPICard 
-          title="Top Selling Product" 
+          title="Best Performance" 
           value="Organic Coffee" 
           icon={<TagRegular />} 
         />
       </div>
 
-      <AIInsightCard 
-        insight="💡 AI Insight: Your Tuesday sales are 40% higher than other weekdays. Consider running a 'Tuesday Treat' promotion to further boost these sales!" 
-      />
+      <div className={styles.section}>
+        <AIInsightCard 
+          insight="Your **sales velocity** for Organic Coffee has increased by 15% this week. We recommend increasing your inventory by 20% to avoid stockouts before the weekend peak." 
+        />
+      </div>
 
       <div className={styles.section}>
-        <Subtitle1>Recent Activity</Subtitle1>
-        <Card>
-          <div style={{ padding: '20px', textAlign: 'center' }}>
-            <Body1>No recent activity to show. Start by adding a sale!</Body1>
-          </div>
-        </Card>
+        <Subtitle1 className={styles.sectionTitle}>
+          <SparkleRegular fontSize={20} color="var(--color-primary)" />
+          Recent Activity
+        </Subtitle1>
+        <div className={styles.emptyCard}>
+          <Text size={500} weight="semibold">No activity yet</Text>
+          <Text block>Your recent transactions and updates will appear here once you start using BizPulse AI.</Text>
+          <Button appearance="subtle" className={styles.actionButton}>Learn how to start</Button>
+        </div>
       </div>
     </div>
   )
 }
-
